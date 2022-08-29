@@ -18,11 +18,11 @@ jobs:
       - name: Cache Nix dependencies
         run: |
           nix develop -j 4 -c echo
-      - name: Flake checks
-        run: |
-          # Sandbox must be disabled due to HLS,
-          # https://github.com/haskell/haskell-language-server/issues/3128
-          nix --option sandbox false build .#check --no-link -L
+      # - name: Flake checks
+      #   run: |
+      #     # Sandbox must be disabled due to HLS,
+      #     # https://github.com/haskell/haskell-language-server/issues/3128
+      #     nix --option sandbox false build .#check --no-link -L
       # TODO: Remove after https://github.com/srid/haskell-flake/issues/19
       - name: Hlint
         run: |
