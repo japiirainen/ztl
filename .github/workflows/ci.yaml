@@ -1,23 +1,33 @@
-name: update-flake-lock
+name: "CI"
 on:
-  workflow_dispatch: # allows manual triggering
-  schedule:
-    - cron: '0 0 * * 0' # runs weekly on Sunday at 00:00
-
+  # Run only when pushing to master branch, and making PRs
+  push:
+    branches:
+      - master
+  pull_request:
 jobs:
-  lockfile:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Install Nix
-        uses: cachix/install-nix-action@v17
+      - uses: actions/checkout@v2
+      - uses: cachix/install-nix-action@v17
         with:
           extra_nix_config: |
+            experimental-features = nix-command flakes
             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
-      - name: Update flake.lock
-        uses: DeterminateSystems/update-flake-lock@v10
-        with:
-          pr-title: "Update flake.lock" # Title of PR to be created
-          pr-labels: |                  # Labels to be set on the PR
-            automated
+      - name: Cache Nix dependencies
+        run: |
+          nix develop -j 4 -c echo
+      - name: Flake checks
+        run: |
+          # Sandbox must be disabled due to HLS,
+          # https://github.com/haskell/haskell-language-server/issues/3128
+          nix --option sandbox false build .#check --no-link -L
+      # TODO: Remove after https://github.com/srid/haskell-flake/issues/19
+      - name: Hlint
+        run: |
+          nix develop -j auto -c hlint src
+      - name: Build
+        id: build
+        run: |
+          nix build -j auto -L
