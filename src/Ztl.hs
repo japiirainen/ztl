@@ -19,7 +19,7 @@ echo :: Member Teletype r => Sem r ()
 echo = do
   i <- readTTY
   case i of
-    "" -> pure ()
+    "" -> pass
     _ -> writeTTY i >> echo
 
 -- echo forever

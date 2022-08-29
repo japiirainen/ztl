@@ -10,7 +10,6 @@
   - "-XTupleSections"
   - "-XTypeApplications"
   - "-XViewPatterns"
-  - "-XTemplateHaskell"
 - ignore:
     name: Use head
 - ignore:
@@ -3287,18 +3286,3 @@
     lhs: "(,) a <$> f a"
     note: "Use `traverseToSnd` from `Relude.Extra.Tuple`"
     rhs: traverseToSnd f a
-Footer
-© 2022 GitHub, Inc.
-Footer navigation
-
-    Terms
-    Privacy
-    Security
-    Status
-    Docs
-    Contact GitHub
-    Pricing
-    API
-    Training
-    Blog
-    About
