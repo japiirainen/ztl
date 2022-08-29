@@ -1,0 +1,59 @@
+name: ztl
+version: 0.0.0
+description: Zettelkasten like
+maintainer: Joona Piirainen <joona.piirainen@gmail.com>
+github: japiirainen/ztl
+
+ghc-options:
+  - -Wall
+  - -Wno-name-shadowing
+  - -fplugin=Polysemy.Plugin
+
+default-extensions:
+  - TemplateHaskell
+  - LambdaCase
+  - BlockArguments
+  - GADTs
+  - FlexibleContexts
+  - TypeOperators
+  - DataKinds
+  - PolyKinds
+  - ScopedTypeVariables
+  - NoImplicitPrelude
+  - OverloadedStrings
+
+library:
+  source-dirs: src
+  exposed-modules:
+    - Ztl
+  dependencies:
+    - base
+    - protolude
+    - polysemy
+    - polysemy-plugin
+    - megaparsec
+    - text
+    - mtl
+
+executable:
+  main: Main.hs
+  source-dirs: app
+  dependencies:
+    - base
+    - protolude
+    - polysemy
+    - polysemy-plugin
+    - ztl
+  ghc-options:
+    - -Wall
+
+tests:
+  tasty:
+    source-dirs: tasty
+    main: Main.hs
+    dependencies:
+      - base
+      - protolude
+      - polysemy
+      - polysemy-plugin
+      - ztl

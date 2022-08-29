@@ -1,0 +1,6 @@
+cradle:
+  cabal:
+    - path: "app"
+      component: "exe:ztl"
+    - path: "tasty"
+      component: "test:tasty"
