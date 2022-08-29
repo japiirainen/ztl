@@ -21,6 +21,7 @@ default-extensions:
   - ScopedTypeVariables
   - NoImplicitPrelude
   - OverloadedStrings
+  - ImportQualifiedPost
 
 library:
   source-dirs: src

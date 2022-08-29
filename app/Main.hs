@@ -2,7 +2,7 @@ module Main where
 
 import Protolude
 
-import qualified Ztl
+import Ztl qualified
 
 main :: IO ()
 main = Ztl.main

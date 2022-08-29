@@ -4,40 +4,39 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 
-name:           ztl
-version:        0.0.0
-description:    Zettelkasten like
-homepage:       https://github.com/japiirainen/ztl#readme
-bug-reports:    https://github.com/japiirainen/ztl/issues
-maintainer:     Joona Piirainen <joona.piirainen@gmail.com>
-license:        MIT
-license-file:   LICENSE
-build-type:     Simple
+name:          ztl
+version:       0.0.0
+description:   Zettelkasten like
+homepage:      https://github.com/japiirainen/ztl#readme
+bug-reports:   https://github.com/japiirainen/ztl/issues
+maintainer:    Joona Piirainen <joona.piirainen@gmail.com>
+license:       MIT
+license-file:  LICENSE
+build-type:    Simple
 
 source-repository head
-  type: git
+  type:     git
   location: https://github.com/japiirainen/ztl
 
 library
-  exposed-modules:
-      Ztl
-  other-modules:
-      Paths_ztl
-  hs-source-dirs:
-      src
+  exposed-modules:    Ztl
+  other-modules:      Paths_ztl
+  hs-source-dirs:     src
   default-extensions:
-      TemplateHaskell
-      LambdaCase
-      BlockArguments
-      GADTs
-      FlexibleContexts
-      TypeOperators
-      DataKinds
-      PolyKinds
-      ScopedTypeVariables
-      NoImplicitPrelude
-      OverloadedStrings
-  ghc-options: -Wall -Wno-name-shadowing -fplugin=Polysemy.Plugin
+    NoImplicitPrelude
+    BlockArguments
+    DataKinds
+    FlexibleContexts
+    GADTs
+    ImportQualifiedPost
+    LambdaCase
+    OverloadedStrings
+    PolyKinds
+    ScopedTypeVariables
+    TemplateHaskell
+    TypeOperators
+
+  ghc-options:        -Wall -Wno-name-shadowing -fplugin=Polysemy.Plugin
   build-depends:
       base
     , megaparsec
@@ -46,59 +45,64 @@ library
     , polysemy-plugin
     , protolude
     , text
-  default-language: Haskell2010
+
+  default-language:   Haskell2010
 
 executable ztl
-  main-is: Main.hs
-  other-modules:
-      Paths_ztl
-  hs-source-dirs:
-      app
+  main-is:            Main.hs
+  other-modules:      Paths_ztl
+  hs-source-dirs:     app
   default-extensions:
-      TemplateHaskell
-      LambdaCase
-      BlockArguments
-      GADTs
-      FlexibleContexts
-      TypeOperators
-      DataKinds
-      PolyKinds
-      ScopedTypeVariables
-      NoImplicitPrelude
-      OverloadedStrings
-  ghc-options: -Wall -Wno-name-shadowing -fplugin=Polysemy.Plugin -Wall
+    NoImplicitPrelude
+    BlockArguments
+    DataKinds
+    FlexibleContexts
+    GADTs
+    ImportQualifiedPost
+    LambdaCase
+    OverloadedStrings
+    PolyKinds
+    ScopedTypeVariables
+    TemplateHaskell
+    TypeOperators
+
+  ghc-options:
+    -Wall -Wno-name-shadowing -fplugin=Polysemy.Plugin -Wall
+
   build-depends:
       base
     , polysemy
     , polysemy-plugin
     , protolude
     , ztl
-  default-language: Haskell2010
+
+  default-language:   Haskell2010
 
 test-suite tasty
-  type: exitcode-stdio-1.0
-  main-is: Main.hs
-  other-modules:
-      Paths_ztl
-  hs-source-dirs:
-      tasty
+  type:               exitcode-stdio-1.0
+  main-is:            Main.hs
+  other-modules:      Paths_ztl
+  hs-source-dirs:     tasty
   default-extensions:
-      TemplateHaskell
-      LambdaCase
-      BlockArguments
-      GADTs
-      FlexibleContexts
-      TypeOperators
-      DataKinds
-      PolyKinds
-      ScopedTypeVariables
-      NoImplicitPrelude
-      OverloadedStrings
-  ghc-options: -Wall -Wno-name-shadowing -fplugin=Polysemy.Plugin
+    NoImplicitPrelude
+    BlockArguments
+    DataKinds
+    FlexibleContexts
+    GADTs
+    ImportQualifiedPost
+    LambdaCase
+    OverloadedStrings
+    PolyKinds
+    ScopedTypeVariables
+    TemplateHaskell
+    TypeOperators
+
+  ghc-options:        -Wall -Wno-name-shadowing -fplugin=Polysemy.Plugin
   build-depends:
       base
     , polysemy
     , polysemy-plugin
     , protolude
     , ztl
-  default-language: Haskell2010
+
+  default-language:   Haskell2010
