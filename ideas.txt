@@ -1,0 +1,16 @@
+- Start with something very minimal, just documents with titles and bodies or something
+
+
+format of a document:
+
+START
+--
+title: my first document
+--
+
+This is the body of the document.
+
+
+
+end of my first document.
+EOF

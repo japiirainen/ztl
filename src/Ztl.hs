@@ -1,7 +1,6 @@
 module Ztl where
 
-import Protolude
-
+import Data.Text
 import Polysemy
 
 data Teletype m a where
@@ -12,14 +11,14 @@ makeSem ''Teletype
 
 teletypeToIO :: Member (Embed IO) r => Sem (Teletype ': r) a -> Sem r a
 teletypeToIO = interpret \case
-  ReadTTY -> embed getLine
-  WriteTTY msg -> embed $ putStrLn msg
+  ReadTTY -> embed (pack <$> getLine)
+  WriteTTY msg -> embed $ putStrLn (unpack msg)
 
 echo :: Member Teletype r => Sem r ()
 echo = do
   i <- readTTY
   case i of
-    "" -> pass
+    "" -> pure ()
     _ -> writeTTY i >> echo
 
 -- echo forever

@@ -1,0 +1,9 @@
+--
+title: my first document
+--
+
+This is the body of the document.
+
+
+
+end of my first document.

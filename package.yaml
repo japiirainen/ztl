@@ -19,29 +19,43 @@ default-extensions:
   - DataKinds
   - PolyKinds
   - ScopedTypeVariables
-  - NoImplicitPrelude
   - OverloadedStrings
   - ImportQualifiedPost
+  - RecordWildCards
+  - DerivingStrategies
+  - GeneralizedNewtypeDeriving
 
 library:
   source-dirs: src
   exposed-modules:
     - Ztl
+    - ZtlMark.Parser
+    - ZtlMark.Type
+    - ZtlMark.Parser.Internal
+    - ZtlMark.Parser.Internal.Type
   dependencies:
     - base
-    - protolude
     - polysemy
     - polysemy-plugin
     - megaparsec
+    - parser-combinators
     - text
     - mtl
+    - microlens
+    - microlens-th
+    - deepseq
+    - case-insensitive
+    - hashable
+    - containers
+    - unordered-containers >=0.2.5 && <0.3
+    - uri
+    - text-metrics
 
 executable:
   main: Main.hs
   source-dirs: app
   dependencies:
     - base
-    - protolude
     - polysemy
     - polysemy-plugin
     - ztl
@@ -54,7 +68,6 @@ tests:
     main: Main.hs
     dependencies:
       - base
-      - protolude
       - polysemy
       - polysemy-plugin
       - ztl
