@@ -15,36 +15,36 @@ license-file:  LICENSE
 build-type:    Simple
 
 source-repository head
-  type:     git
+  type: git
   location: https://github.com/japiirainen/ztl
 
 library
   exposed-modules:
-    Ztl
-    ZtlMark.Parser
-    ZtlMark.Parser.Internal
-    ZtlMark.Parser.Internal.Type
-    ZtlMark.Type
-
-  other-modules:      Paths_ztl
-  hs-source-dirs:     src
+      Ztl
+      ZtlMark.Parser
+      ZtlMark.Type
+      ZtlMark.Parser.Internal
+      ZtlMark.Parser.Internal.Type
+  other-modules:
+      Paths_ztl
+  hs-source-dirs:
+      src
   default-extensions:
-    BlockArguments
-    DataKinds
-    DerivingStrategies
-    FlexibleContexts
-    GADTs
-    GeneralizedNewtypeDeriving
-    ImportQualifiedPost
-    LambdaCase
-    OverloadedStrings
-    PolyKinds
-    RecordWildCards
-    ScopedTypeVariables
-    TemplateHaskell
-    TypeOperators
-
-  ghc-options:        -Wall -Wno-name-shadowing -fplugin=Polysemy.Plugin
+      TemplateHaskell
+      LambdaCase
+      BlockArguments
+      GADTs
+      FlexibleContexts
+      TypeOperators
+      DataKinds
+      PolyKinds
+      ScopedTypeVariables
+      OverloadedStrings
+      ImportQualifiedPost
+      RecordWildCards
+      DerivingStrategies
+      GeneralizedNewtypeDeriving
+  ghc-options: -Wall -Wno-name-shadowing -fplugin=Polysemy.Plugin
   build-depends:
       base
     , case-insensitive
@@ -54,74 +54,71 @@ library
     , megaparsec
     , microlens
     , microlens-th
+    , modern-uri
     , mtl
     , parser-combinators
     , polysemy
     , polysemy-plugin
     , text
     , text-metrics
-    , unordered-containers  >=0.2.5 && <0.3
-    , uri
-
-  default-language:   Haskell2010
+    , unordered-containers >=0.2.5 && <0.3
+  default-language: Haskell2010
 
 executable ztl
-  main-is:            Main.hs
-  other-modules:      Paths_ztl
-  hs-source-dirs:     app
+  main-is: Main.hs
+  other-modules:
+      Paths_ztl
+  hs-source-dirs:
+      app
   default-extensions:
-    BlockArguments
-    DataKinds
-    DerivingStrategies
-    FlexibleContexts
-    GADTs
-    GeneralizedNewtypeDeriving
-    ImportQualifiedPost
-    LambdaCase
-    OverloadedStrings
-    PolyKinds
-    RecordWildCards
-    ScopedTypeVariables
-    TemplateHaskell
-    TypeOperators
-
-  ghc-options:
-    -Wall -Wno-name-shadowing -fplugin=Polysemy.Plugin -Wall
-
+      TemplateHaskell
+      LambdaCase
+      BlockArguments
+      GADTs
+      FlexibleContexts
+      TypeOperators
+      DataKinds
+      PolyKinds
+      ScopedTypeVariables
+      OverloadedStrings
+      ImportQualifiedPost
+      RecordWildCards
+      DerivingStrategies
+      GeneralizedNewtypeDeriving
+  ghc-options: -Wall -Wno-name-shadowing -fplugin=Polysemy.Plugin -Wall
   build-depends:
       base
     , polysemy
     , polysemy-plugin
     , ztl
-
-  default-language:   Haskell2010
+  default-language: Haskell2010
 
 test-suite tasty
-  type:               exitcode-stdio-1.0
-  main-is:            Main.hs
-  other-modules:      Paths_ztl
-  hs-source-dirs:     tasty
+  type: exitcode-stdio-1.0
+  main-is: Main.hs
+  other-modules:
+      Paths_ztl
+  hs-source-dirs:
+      tasty
   default-extensions:
-    BlockArguments
-    DataKinds
-    DerivingStrategies
-    FlexibleContexts
-    GADTs
-    GeneralizedNewtypeDeriving
-    ImportQualifiedPost
-    LambdaCase
-    OverloadedStrings
-    PolyKinds
-    RecordWildCards
-    ScopedTypeVariables
-    TemplateHaskell
-    TypeOperators
-
-  ghc-options:        -Wall -Wno-name-shadowing -fplugin=Polysemy.Plugin
+      TemplateHaskell
+      LambdaCase
+      BlockArguments
+      GADTs
+      FlexibleContexts
+      TypeOperators
+      DataKinds
+      PolyKinds
+      ScopedTypeVariables
+      OverloadedStrings
+      ImportQualifiedPost
+      RecordWildCards
+      DerivingStrategies
+      GeneralizedNewtypeDeriving
+  ghc-options: -Wall -Wno-name-shadowing -fplugin=Polysemy.Plugin
   build-depends:
       base
     , polysemy
     , polysemy-plugin
     , ztl
-
-  default-language:   Haskell2010
+  default-language: Haskell2010
