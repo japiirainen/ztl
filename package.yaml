@@ -35,6 +35,9 @@ library:
     - ZtlMark.Parser.Internal.Type
   dependencies:
     - base
+    - aeson
+    - lucid
+    - dlist
     - polysemy
     - polysemy-plugin
     - megaparsec
@@ -50,6 +53,7 @@ library:
     - unordered-containers >=0.2.5 && <0.3
     - modern-uri
     - text-metrics
+    - yaml
 
 executable:
   main: Main.hs

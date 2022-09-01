@@ -46,11 +46,14 @@ library
       GeneralizedNewtypeDeriving
   ghc-options: -Wall -Wno-name-shadowing -fplugin=Polysemy.Plugin
   build-depends:
-      base
+      aeson
+    , base
     , case-insensitive
     , containers
     , deepseq
+    , dlist
     , hashable
+    , lucid
     , megaparsec
     , microlens
     , microlens-th
@@ -62,6 +65,7 @@ library
     , text
     , text-metrics
     , unordered-containers >=0.2.5 && <0.3
+    , yaml
   default-language: Haskell2010
 
 executable ztl
