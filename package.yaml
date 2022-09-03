@@ -29,8 +29,12 @@ library:
   source-dirs: src
   exposed-modules:
     - Ztl
+    - ZtlMark
     - ZtlMark.Parser
     - ZtlMark.Type
+    - ZtlMark.Trans
+    - ZtlMark.Util
+    - ZtlMark.Render
     - ZtlMark.Parser.Internal
     - ZtlMark.Parser.Internal.Type
   dependencies:
@@ -54,6 +58,7 @@ library:
     - modern-uri
     - text-metrics
     - yaml
+    - foldl
 
 executable:
   main: Main.hs
@@ -67,11 +72,23 @@ executable:
     - -Wall
 
 tests:
-  tasty:
-    source-dirs: tasty
+  tests:
+    source-dirs: tests
+    other-modules:
+      - ZtlMarkSpec
+      - TestUtils
     main: Main.hs
     dependencies:
-      - base
       - polysemy
       - polysemy-plugin
+      - QuickCheck
+      - aeson
+      - base
+      - foldl
+      - hspec
+      - hspec-megaparsec
+      - megaparsec
+      - lucid
       - ztl
+      - modern-uri
+      - text

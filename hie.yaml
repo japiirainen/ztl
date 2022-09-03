@@ -2,7 +2,7 @@ cradle:
   cabal:
     - path: "app"
       component: "exe:ztl"
-    - path: "tasty"
-      component: "test:tasty"
+    - path: "tests"
+      component: "test:tests"
     - path: "src"
       component: "lib:ztl"

@@ -36,6 +36,8 @@ import Data.CaseInsensitive (CI)
 import Data.Data (Data)
 import Data.HashMap.Strict (HashMap)
 import Data.Hashable (Hashable)
+import Data.List.NonEmpty (NonEmpty)
+import Data.Proxy (Proxy (..))
 import Data.Text (Text)
 import Data.Typeable (Typeable)
 import GHC.Generics
@@ -131,6 +133,8 @@ unDefLabel (DefLabel x) = CI.original x
 data ZtlMarkError
   = -- | YAML error that occurred during YAML block parsing
     YamlParseError String
+  | -- | This delimiter run should be in left- or right- flanking position
+    NonFlankingDelimiterRun (NonEmpty Char)
   | -- | Unknown HTML5 entity name
     UnknownHtmlEntityName Text
   deriving stock (Eq, Ord, Show, Read, Typeable)
@@ -140,6 +144,9 @@ instance ShowErrorComponent ZtlMarkError where
   showErrorComponent = \case
     YamlParseError str ->
       "YAML parse error: " ++ str
+    NonFlankingDelimiterRun dels ->
+      showTokens (Proxy :: Proxy Text) dels
+        <> " should be in left- or right- flanking position"
     UnknownHtmlEntityName name ->
       "unknown HTML5 entity name: \"" ++ T.unpack name ++ "\""
 

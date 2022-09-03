@@ -80,6 +80,7 @@ data Block a
   = Heading1 a
   | Paragraph a
   | Naked a
+  | Blockquote [Block a]
   deriving stock (Show, Eq, Ord)
   deriving (Data, Typeable, Generic, Functor, Foldable)
 
@@ -88,6 +89,7 @@ instance NFData a => NFData (Block a)
 data Inline
   = Plain Text
   | LineBreak
+  | Strong (NonEmpty Inline)
   deriving stock (Show, Eq, Ord)
   deriving (Data, Typeable, Generic)
 

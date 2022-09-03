@@ -3,25 +3,44 @@ module ZtlMark.Parser (
   ZtlMarkError (..),
 ) where
 
-import Control.Applicative (Alternative)
+import Control.Applicative (Alternative, liftA2)
 import Control.Monad
 import Data.Bifunctor (Bifunctor (..))
-import Data.List.NonEmpty (NonEmpty (..))
+import Data.List.NonEmpty (NonEmpty (..), (<|))
 import Data.Text (Text)
 import Text.Megaparsec hiding (State (..), parse)
 import Text.Megaparsec.Char hiding (eol)
 import ZtlMark.Parser.Internal
 import ZtlMark.Type
 
-import qualified Data.Aeson as Aeson
-import qualified Data.DList as DList
-import qualified Data.List.NonEmpty as NE
+import Data.Aeson qualified as Aeson
+import Data.Char qualified as Char
+import Data.DList qualified as DList
+import Data.List.NonEmpty qualified as NE
 import Data.Maybe (catMaybes)
-import qualified Data.Set as E
-import qualified Data.Text as T
-import qualified Data.Text.Encoding as TE
-import qualified Data.Yaml as Yaml
-import qualified Text.Megaparsec.Char.Lexer as L
+import Data.Set qualified as E
+import Data.Text qualified as T
+import Data.Text.Encoding qualified as TE
+import Data.Yaml qualified as Yaml
+import Text.Megaparsec.Char.Lexer qualified as L
+
+-- | Frame that describes where we are in parsing inlines.
+data InlineFrame
+  = -- | Strong emphasis with asterisk @**@
+    StrongFrame
+  | -- | Strong emphasis with underscore @__@
+    StrongFrame_
+  deriving stock (Eq, Ord, Show)
+
+{- | State of inline parsing that specifiec wheater we expect to close on
+ frame or there is a possibility to close ano of two alternatives.
+-}
+data InlineState
+  = -- | One frame to be closed
+    SingleFrame InlineFrame
+  | -- | Two frames to be closed
+    DoubleFrame InlineFrame InlineFrame
+  deriving stock (Eq, Ord, Show)
 
 parse :: FilePath -> Text -> Either (ParseErrorBundle Text ZtlMarkError) ZtlMark
 parse file input =
@@ -213,7 +232,150 @@ notNewline :: Char -> Bool
 notNewline = not . isNewline
 
 pInlinesTop :: IParser (NonEmpty Inline)
-pInlinesTop = undefined
+pInlinesTop = do
+  inlines <- pInlines
+  eof <|> void pLfdr
+  pure inlines
+
+pInlines :: IParser (NonEmpty Inline)
+pInlines = do
+  done <- atEnd
+  allowsEmpty <- isEmptyAllowed
+  if done
+    then
+      if allowsEmpty
+        then (pure . nes . Plain) ""
+        else unexpEic EndOfInput
+    else NE.some1 $ do
+      mch <- lookAhead (anySingle <?> "inline content")
+      case mch of
+        ch ->
+          if isFrameConstituent ch
+            then pEnclosedInline
+            else pPlain
+
+pPlain :: IParser Inline
+pPlain = fmap (Plain . bakeText) . foldSome $ do
+  ch <- lookAhead (anySingle <?> "inline content")
+  let newline' =
+        (('\n' :) . dropWhile isSpace) <$ eol <* sc' <* lastChar SpaceChar
+  case ch of
+    '\\' ->
+      (:)
+        <$> ( (escapedChar <* lastChar OtherChar)
+                <|> try (char '\\' <* notFollowedBy eol <* lastChar OtherChar)
+            )
+    '\n' -> newline'
+    '\r' -> newline'
+    _ ->
+      (:)
+        <$> if Char.isSpace ch
+          then char ch <* lastChar SpaceChar
+          else
+            if isSpecialChar ch
+              then
+                failure
+                  (Just . Tokens . nes $ ch)
+                  (E.singleton . Label . NE.fromList $ "inline content")
+              else
+                if Char.isPunctuation ch
+                  then char ch <* lastChar PunctChar
+                  else char ch <* lastChar OtherChar
+
+pEnclosedInline :: IParser Inline
+pEnclosedInline =
+  disallowEmpty $
+    pLfdr >>= \case
+      SingleFrame x ->
+        liftFrame x <$> pInlines <* pRfdr x
+      DoubleFrame x y -> do
+        inlines0 <- pInlines
+        thisFrame <- pRfdr x <|> pRfdr y
+        let thatFrame = if thisFrame == x then y else x
+        minlines1 <- optional pInlines
+        void (pRfdr thatFrame)
+        pure . liftFrame thatFrame $
+          case minlines1 of
+            Nothing ->
+              nes (liftFrame thisFrame inlines0)
+            Just inlines1 ->
+              liftFrame thisFrame inlines0 <| inlines1
+
+pLfdr :: IParser InlineState
+pLfdr = try $ do
+  o <- getOffset
+  let r st = st <$ string (inlineStateDel st)
+  st <-
+    hidden $
+      choice
+        [ r (DoubleFrame StrongFrame StrongFrame)
+        , r (SingleFrame StrongFrame)
+        , r (DoubleFrame StrongFrame_ StrongFrame_)
+        , r (SingleFrame StrongFrame_)
+        ]
+  let dels = inlineStateDel st
+      failNow =
+        customFailure' o (NonFlankingDelimiterRun (toNesTokens dels))
+  lch <- getLastChar
+  rch <- getNextChar OtherChar
+  when (lch >= rch) failNow
+  return st
+
+pRfdr :: InlineFrame -> IParser InlineFrame
+pRfdr frame = try $ do
+  let dels = inlineFrameDel frame
+      expectingInlineContent = region $ \case
+        TrivialError pos us es ->
+          TrivialError pos us $
+            E.insert (Label $ NE.fromList "inline content") es
+        other -> other
+  o <- getOffset
+  (void . expectingInlineContent . string) dels
+  let failNow =
+        customFailure' o (NonFlankingDelimiterRun (toNesTokens dels))
+  lch <- getLastChar
+  rch <- getNextChar SpaceChar
+  when (lch <= rch) failNow
+  return frame
+
+escapedChar :: MonadParsec e Text m => m Char
+escapedChar =
+  label "escaped character" $
+    try (char '\\' *> satisfy isAsciiPunctuation)
+
+isMarkupChar :: Char -> Bool
+isMarkupChar x = isFrameConstituent x || f x
+  where
+    f = \case
+      '[' -> True
+      ']' -> True
+      '`' -> True
+      _ -> False
+
+isSpecialChar :: Char -> Bool
+isSpecialChar x = isMarkupChar x || x == '\\' || x == '!' || x == '<'
+
+isAsciiPunctuation :: Char -> Bool
+isAsciiPunctuation x =
+  (x >= '!' && x <= '/')
+    || (x >= ':' && x <= '@')
+    || (x >= '[' && x <= '`')
+    || (x >= '{' && x <= '~')
+
+inlineStateDel :: InlineState -> Text
+inlineStateDel = \case
+  SingleFrame x -> inlineFrameDel x
+  DoubleFrame x y -> inlineFrameDel x <> inlineFrameDel y
+
+liftFrame :: InlineFrame -> NonEmpty Inline -> Inline
+liftFrame = \case
+  StrongFrame -> Strong
+  StrongFrame_ -> Strong
+
+inlineFrameDel :: InlineFrame -> Text
+inlineFrameDel = \case
+  StrongFrame -> "*"
+  StrongFrame_ -> "_"
 
 prependErr :: Int -> ZtlMarkError -> [Block Isp] -> [Block Isp]
 prependErr o custom blocks = Naked (IspError e) : blocks
@@ -224,6 +386,17 @@ ilevel = (<> mkPos 4)
 
 isBlank :: Text -> Bool
 isBlank = T.all isSpace
+
+foldMany :: MonadPlus m => m (a -> a) -> m (a -> a)
+foldMany f = go id
+  where
+    go g =
+      optional f >>= \case
+        Nothing -> pure g
+        Just h -> go (h . g)
+
+foldSome :: MonadPlus m => m (a -> a) -> m (a -> a)
+foldSome f = liftA2 (flip (.)) f (foldMany f)
 
 assembleParagraph :: [Text] -> Text
 assembleParagraph = go
@@ -239,3 +412,44 @@ replaceEof altLabel = \case
   where
     f EndOfInput = Label (NE.fromList altLabel)
     f x = x
+
+getNextChar :: CharType -> IParser CharType
+getNextChar frameType = lookAhead (option SpaceChar (charType <$> anySingle))
+  where
+    charType ch
+      | isFrameConstituent ch = frameType
+      | Char.isSpace ch = SpaceChar
+      | ch == '\\' = OtherChar
+      | Char.isPunctuation ch = PunctChar
+      | otherwise = OtherChar
+
+isFrameConstituent :: Char -> Bool
+isFrameConstituent = \case
+  '*' -> True
+  '^' -> True
+  '_' -> True
+  '~' -> True
+  _ -> False
+
+toNesTokens :: Text -> NonEmpty Char
+toNesTokens = NE.fromList . T.unpack
+
+unexpEic :: MonadParsec e Text m => ErrorItem Char -> m a
+unexpEic x =
+  failure
+    (Just x)
+    (E.singleton . Label . NE.fromList $ "inline content")
+
+nes :: a -> NonEmpty a
+nes a = a :| []
+
+bakeText :: (String -> String) -> Text
+bakeText = T.pack . reverse . ($ [])
+
+customFailure' ::
+  MonadParsec ZtlMarkError Text m =>
+  Int ->
+  ZtlMarkError ->
+  m a
+customFailure' o e =
+  parseError $ FancyError o (E.singleton (ErrorCustom e))

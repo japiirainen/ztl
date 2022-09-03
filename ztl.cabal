@@ -15,36 +15,40 @@ license-file:  LICENSE
 build-type:    Simple
 
 source-repository head
-  type: git
+  type:     git
   location: https://github.com/japiirainen/ztl
 
 library
   exposed-modules:
-      Ztl
-      ZtlMark.Parser
-      ZtlMark.Type
-      ZtlMark.Parser.Internal
-      ZtlMark.Parser.Internal.Type
-  other-modules:
-      Paths_ztl
-  hs-source-dirs:
-      src
+    Ztl
+    ZtlMark
+    ZtlMark.Parser
+    ZtlMark.Parser.Internal
+    ZtlMark.Parser.Internal.Type
+    ZtlMark.Render
+    ZtlMark.Trans
+    ZtlMark.Type
+    ZtlMark.Util
+
+  other-modules:      Paths_ztl
+  hs-source-dirs:     src
   default-extensions:
-      TemplateHaskell
-      LambdaCase
-      BlockArguments
-      GADTs
-      FlexibleContexts
-      TypeOperators
-      DataKinds
-      PolyKinds
-      ScopedTypeVariables
-      OverloadedStrings
-      ImportQualifiedPost
-      RecordWildCards
-      DerivingStrategies
-      GeneralizedNewtypeDeriving
-  ghc-options: -Wall -Wno-name-shadowing -fplugin=Polysemy.Plugin
+    BlockArguments
+    DataKinds
+    DerivingStrategies
+    FlexibleContexts
+    GADTs
+    GeneralizedNewtypeDeriving
+    ImportQualifiedPost
+    LambdaCase
+    OverloadedStrings
+    PolyKinds
+    RecordWildCards
+    ScopedTypeVariables
+    TemplateHaskell
+    TypeOperators
+
+  ghc-options:        -Wall -Wno-name-shadowing -fplugin=Polysemy.Plugin
   build-depends:
       aeson
     , base
@@ -52,6 +56,7 @@ library
     , containers
     , deepseq
     , dlist
+    , foldl
     , hashable
     , lucid
     , megaparsec
@@ -64,65 +69,80 @@ library
     , polysemy-plugin
     , text
     , text-metrics
-    , unordered-containers >=0.2.5 && <0.3
+    , unordered-containers  >=0.2.5 && <0.3
     , yaml
-  default-language: Haskell2010
+
+  default-language:   Haskell2010
 
 executable ztl
-  main-is: Main.hs
-  other-modules:
-      Paths_ztl
-  hs-source-dirs:
-      app
+  main-is:            Main.hs
+  other-modules:      Paths_ztl
+  hs-source-dirs:     app
   default-extensions:
-      TemplateHaskell
-      LambdaCase
-      BlockArguments
-      GADTs
-      FlexibleContexts
-      TypeOperators
-      DataKinds
-      PolyKinds
-      ScopedTypeVariables
-      OverloadedStrings
-      ImportQualifiedPost
-      RecordWildCards
-      DerivingStrategies
-      GeneralizedNewtypeDeriving
-  ghc-options: -Wall -Wno-name-shadowing -fplugin=Polysemy.Plugin -Wall
-  build-depends:
-      base
-    , polysemy
-    , polysemy-plugin
-    , ztl
-  default-language: Haskell2010
+    BlockArguments
+    DataKinds
+    DerivingStrategies
+    FlexibleContexts
+    GADTs
+    GeneralizedNewtypeDeriving
+    ImportQualifiedPost
+    LambdaCase
+    OverloadedStrings
+    PolyKinds
+    RecordWildCards
+    ScopedTypeVariables
+    TemplateHaskell
+    TypeOperators
 
-test-suite tasty
-  type: exitcode-stdio-1.0
-  main-is: Main.hs
-  other-modules:
-      Paths_ztl
-  hs-source-dirs:
-      tasty
-  default-extensions:
-      TemplateHaskell
-      LambdaCase
-      BlockArguments
-      GADTs
-      FlexibleContexts
-      TypeOperators
-      DataKinds
-      PolyKinds
-      ScopedTypeVariables
-      OverloadedStrings
-      ImportQualifiedPost
-      RecordWildCards
-      DerivingStrategies
-      GeneralizedNewtypeDeriving
-  ghc-options: -Wall -Wno-name-shadowing -fplugin=Polysemy.Plugin
+  ghc-options:
+    -Wall -Wno-name-shadowing -fplugin=Polysemy.Plugin -Wall
+
   build-depends:
       base
     , polysemy
     , polysemy-plugin
     , ztl
-  default-language: Haskell2010
+
+  default-language:   Haskell2010
+
+test-suite tests
+  type:               exitcode-stdio-1.0
+  main-is:            Main.hs
+  other-modules:
+    TestUtils
+    ZtlMarkSpec
+
+  hs-source-dirs:     tests
+  default-extensions:
+    BlockArguments
+    DataKinds
+    DerivingStrategies
+    FlexibleContexts
+    GADTs
+    GeneralizedNewtypeDeriving
+    ImportQualifiedPost
+    LambdaCase
+    OverloadedStrings
+    PolyKinds
+    RecordWildCards
+    ScopedTypeVariables
+    TemplateHaskell
+    TypeOperators
+
+  ghc-options:        -Wall -Wno-name-shadowing -fplugin=Polysemy.Plugin
+  build-depends:
+      aeson
+    , base
+    , foldl
+    , hspec
+    , hspec-megaparsec
+    , lucid
+    , megaparsec
+    , modern-uri
+    , polysemy
+    , polysemy-plugin
+    , QuickCheck
+    , text
+    , ztl
+
+  default-language:   Haskell2010
