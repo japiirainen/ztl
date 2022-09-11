@@ -7,6 +7,8 @@ import TestUtils
 import Text.Megaparsec (ErrorFancy (..), Stream)
 import ZtlMark
 
+import Data.Text.IO qualified as TIO
+
 spec :: Spec
 spec = parallel $ do
   describe "parse and render" $ do
@@ -61,6 +63,27 @@ spec = parallel $ do
               ~~-> [ errFancy 15 mappingError
                    , err 33 (ueib <> etok '*' <> eic)
                    ]
+  describe "external files" $ do
+    it "basic md file" $
+      withFiles "tests/data/basic.md" "tests/data/basic.html"
+    it "HTML rendering ignores the yaml block" $
+      withFiles "tests/data/with-yaml.md" "tests/data/with-yaml.html"
+
+-- For testing with documents loaded externally
+
+{- | Load a complete markdown document from an external file and compare
+ the final HTML rendering with the contents of another file.
+-}
+withFiles ::
+  -- | Markdown file
+  FilePath ->
+  -- | HTML document containing the correct result
+  FilePath ->
+  Expectation
+withFiles input output = do
+  i <- TIO.readFile input
+  o <- TIO.readFile output
+  i ==-> o
 
 -- | Unexpected end of inline block.
 ueib :: Stream s => ET s
